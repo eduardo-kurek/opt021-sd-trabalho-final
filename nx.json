@@ -7,8 +7,14 @@
       "sharedGlobals"
     ],
     "production": [
-      "default"
+      "default",
+      "!{projectRoot}/**/*.Tests/**/*",
+      "!{projectRoot}/**/bin/**/*",
+      "!{projectRoot}/**/obj/**/*"
     ],
     "sharedGlobals": []
-  }
+  },
+  "plugins": [
+    "@nx/dotnet"
+  ]
 }

@@ -4,8 +4,8 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "dependencies": {},
   "devDependencies": {
+    "@nx/dotnet": "^22.7.4",
     "@nx/js": "22.7.4",
     "@nx/workspace": "22.7.4",
     "nx": "22.7.4"
