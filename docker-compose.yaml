@@ -1,0 +1,16 @@
+services:
+
+  database:
+    image: postgres:latest
+    container_name: opt021-db 
+    ports:
+      - "6666:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=orquestrador_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
