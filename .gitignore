@@ -47,3 +47,5 @@ Thumbs.db
 **/bin/
 **/obj/
 /artifacts/
+
+.angular
