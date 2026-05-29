@@ -1,0 +1,18 @@
+<p-panel>
+    <ng-template #header>
+        <h1>Nova roteirização</h1>
+    </ng-template>
+    
+    <form [formRoot]="routingForm">
+        <div>
+            <p-floatlabel>
+                <input pInputText id="name" autocomplete="off" [formField]="routingForm.name" />
+                <label for="name">Nome do roteiro</label>
+            </p-floatlabel>
+        </div>
+
+        <div>
+            <p-button label="Criar roteiro" type="submit" />
+        </div>    
+    </form>
+</p-panel>

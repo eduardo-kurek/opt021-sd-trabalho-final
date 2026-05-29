@@ -1,13 +1,15 @@
-<p-toolbar>
-    <ng-template #start>
-        <p-button icon="pi pi-home" routerLink="/" />
-    </ng-template>
+<p-toast position="bottom-right" />
 
-    <ng-template #end>
-        <p-button label="Online" />
-    </ng-template>
-</p-toolbar>
+<main>
+    <p-toolbar>
+        <ng-template #start>
+            <p-button icon="pi pi-home" routerLink="/" />
+        </ng-template>
 
-<p-panel>
+        <ng-template #end>
+            <p-button label="Online" />
+        </ng-template>
+    </p-toolbar>
+
     <router-outlet></router-outlet>
-</p-panel>
+</main>

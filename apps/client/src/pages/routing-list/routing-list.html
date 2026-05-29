@@ -1,1 +1,9 @@
-<p>{{ message() }}</p>
+@if (routingList().length > 0) {
+    @for (routing of routingList(); track routing.id) {
+        <p-card [header]="routing.name">
+            <p>Id: {{ routing.id }}</p>
+        </p-card>
+    }
+} @else {
+    <p>Nenhuma roteirização encontrada</p>
+}

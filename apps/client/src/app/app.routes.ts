@@ -13,5 +13,9 @@ export const appRoutes: Route[] = [
     {
         path: 'routing-list',
         loadComponent: () => import('../pages/routing-list/routing-list').then(m => m.RoutingList)
+    },
+    {
+        path: 'create-routing',
+        loadComponent: () => import('../pages/create-routing/create-routing').then(m => m.CreateRouting)
     }
 ];
