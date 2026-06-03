@@ -1,6 +1,10 @@
 @if (routingList().length > 0) {
     @for (routing of routingList(); track routing.id) {
-        <p-card [header]="routing.name">
+        <p-card>
+            <ng-content #header>
+                {{ routing.name }}
+                <p-button icon="pi pi-eye" (onClick)="navigate(routing.id)" [rounded]="true" size="small"/>
+            </ng-content>
             <p>Id: {{ routing.id }}</p>
         </p-card>
     }

@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { RoutingService } from '../../../services/RoutingService';
 
 interface RoutingForm {
   name: string;
@@ -18,6 +19,7 @@ interface RoutingForm {
   templateUrl: './create-routing.html',
 })
 export class CreateRouting {
+  private service = inject(RoutingService);
   private http = inject(HttpClient);
   private messageService = inject(MessageService);
   private router = inject(Router);
@@ -29,7 +31,7 @@ export class CreateRouting {
   routingForm = form(this.routingModel, (sc) => {}, {
     submission: {
       action: async (field) => {
-        this.http.post('http://localhost:5123/api/routing', field().value())
+        this.service.create(field().value().name)
           .subscribe((result) => {
             this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Roteiro criado com sucesso!' });
             this.router.navigate(['/']);

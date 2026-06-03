@@ -20,6 +20,15 @@ public class RoutingController : ControllerBase {
     return Ok(routings);
   }
 
+  [HttpGet("{id:guid}")]
+  public async Task<IActionResult> GetById([FromRoute] Guid id){
+    Console.WriteLine("BUSCANDO");
+    var routing = await db.Routings.FindAsync(id);
+    if (routing == null)
+      return NotFound(new { erro = "Roteirização não encontrada." });
+    return Ok(routing);
+  }
+
   [HttpPost]
   public async Task<IActionResult> Create([FromBody] CreateRoutingRequest req){
     if(string.IsNullOrWhiteSpace(req.Name)){
@@ -39,3 +48,4 @@ public class RoutingController : ControllerBase {
 }
 
 public record CreateRoutingRequest(string Name);
+

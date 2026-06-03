@@ -4,6 +4,8 @@ import { ButtonModule } from 'primeng/button';
 import { HttpClient } from '@angular/common/http';
 import { Routing } from '../../models/Routing';
 import { CardModule } from 'primeng/card';
+import { Router } from '@angular/router';
+import { RoutingService } from '../../../services/RoutingService';
 
 @Component({
   imports: [RouterModule, ButtonModule, CardModule],
@@ -12,14 +14,19 @@ import { CardModule } from 'primeng/card';
   styleUrl: './routing-list.css'
 })
 export class RoutingList implements OnInit {
+  private router = inject(Router);
+  private service = inject(RoutingService);
   private http = inject(HttpClient);
   routingList = signal<Routing[]>([]);
-by: any;
 
   ngOnInit(): void {
-    this.http.get<Routing[]>('http://localhost:5123/api/routing').subscribe((data) => {
+    this.service.getAll().subscribe((data) => {
       this.routingList.set(data);
     });
+  }
+
+  navigate(id: string) {
+    this.router.navigate(['/routing-detail', id]);
   }
 
 }
