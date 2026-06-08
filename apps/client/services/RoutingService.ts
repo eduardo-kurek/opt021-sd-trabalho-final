@@ -18,7 +18,7 @@ export class RoutingService {
     return this.http.get<Routing[]>(this.apiUrl);
   }
 
-  create(name: string): Observable<any> {
-    return this.http.post('http://localhost:5123/api/routing', { name });
+  create(name: string, slots: any[]): Observable<any> {
+    return this.http.post('http://localhost:5123/api/routing', { name, slots });
   }
 }

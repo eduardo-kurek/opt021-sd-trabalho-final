@@ -8,4 +8,6 @@ public class Routing {
 
   [Required]
   public string Name { get; set; } = string.Empty;
+
+  public List<Slot> Slots { get; set; } = [];
 }

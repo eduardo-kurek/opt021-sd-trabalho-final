@@ -23,7 +23,9 @@ public class RoutingController : ControllerBase {
   [HttpGet("{id:guid}")]
   public async Task<IActionResult> GetById([FromRoute] Guid id){
     Console.WriteLine("BUSCANDO");
-    var routing = await db.Routings.FindAsync(id);
+    var routing = await db.Routings
+      .Include(r => r.Slots)
+      .FirstOrDefaultAsync(r => r.Id == id);
     if (routing == null)
       return NotFound(new { erro = "Roteirização não encontrada." });
     return Ok(routing);
@@ -39,6 +41,12 @@ public class RoutingController : ControllerBase {
       Name = req.Name
     };
 
+    routing.Slots = req.Slots.Select(s => new Slot {
+      ServicesQt = s.ServicesQt,
+      Routing = routing
+    }).ToList();
+
+
     db.Routings.Add(routing);
     await db.SaveChangesAsync();
 
@@ -47,5 +55,6 @@ public class RoutingController : ControllerBase {
 
 }
 
-public record CreateRoutingRequest(string Name);
+public record CreateSlotRequest(int ServicesQt);
+public record CreateRoutingRequest(string Name, List<CreateSlotRequest> Slots);
 

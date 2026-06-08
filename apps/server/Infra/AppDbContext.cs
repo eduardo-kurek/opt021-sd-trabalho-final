@@ -9,4 +9,5 @@ public class AppDbContext : DbContext {
   }
 
   public DbSet<Routing> Routings { get; set; }
+  public DbSet<Slot> Slots { get; set; }
 }

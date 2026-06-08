@@ -23,7 +23,8 @@ export class RoutingDetail implements OnInit {
     if (id) {
       this.http.get<Routing>(`http://localhost:5123/api/routing/${id}`).subscribe((data) => {
         this.routing.set(data);
-        console.log(data  );
+        console.log('Roteiro carregado:', data);
+        console.log('Roteiro:', this.routing());
       });
     }
   }
