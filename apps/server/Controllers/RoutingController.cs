@@ -22,7 +22,6 @@ public class RoutingController : ControllerBase {
 
   [HttpGet("{id:guid}")]
   public async Task<IActionResult> GetById([FromRoute] Guid id){
-    Console.WriteLine("BUSCANDO");
     var routing = await db.Routings
       .Include(r => r.Slots)
       .FirstOrDefaultAsync(r => r.Id == id);
