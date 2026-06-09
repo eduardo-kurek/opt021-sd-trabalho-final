@@ -10,6 +10,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { RoutingService } from '../../../services/RoutingService';
 import { SlotService } from '../../../services/SlotService';
 import { MessageService } from 'primeng/api';
+import { CURRENT_USER } from '../../token/current-user.token';
+import { FormField } from "@angular/forms/signals";
 
 @Component({
   imports: [RouterModule, ButtonModule, CardModule, TagModule, ProgressBarModule],
@@ -24,9 +26,11 @@ export class RoutingDetail implements OnInit {
   private routingService = inject(RoutingService);
   private slotService = inject(SlotService);
   private messageService = inject(MessageService);
+  currentUser = inject(CURRENT_USER);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('Current User:', );
 
     if (id) {
       this.routingService.getById(id).subscribe((data) => {
@@ -35,8 +39,8 @@ export class RoutingDetail implements OnInit {
     }
   }
 
-  takeSlot(slotId: string, team: string) {
-    this.slotService.takeSlot(slotId, team).subscribe(() => {
+  takeSlot(slotId: string) {
+    this.slotService.takeSlot(slotId, this.currentUser()).subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Vaga assumida com sucesso' });
     });
   }

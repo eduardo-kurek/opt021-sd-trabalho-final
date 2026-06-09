@@ -6,6 +6,19 @@
             <p-button icon="pi pi-home" routerLink="/" />
         </ng-template>
 
+        <ng-template #center>
+            <div style="display: flex; align-items: center; gap: 0.5rem">
+                <label for="user1" style="margin-left: 5px;">eduardo</label>
+                <p-radiobutton name="username" value="eduardo" [(ngModel)]="currentUser" inputId="user1"/>
+
+                <label for="user2" style="margin-left: 5px;">campiolo</label>
+                <p-radiobutton name="username" value="campiolo" [(ngModel)]="currentUser" inputId="user2"/>
+
+                <label for="user3" style="margin-left: 5px;">visitante</label>
+                <p-radiobutton name="username" value="visitante" [(ngModel)]="currentUser" inputId="user3"/>
+            </div>
+        </ng-template>
+
         <ng-template #end>
             <p-button label="Online" />
         </ng-template>

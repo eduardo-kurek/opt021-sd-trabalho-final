@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Infra;
-using Server.Models;
 
 namespace Server.Controllers;
 
@@ -17,7 +16,7 @@ public class SlotController : ControllerBase {
   [HttpPost("take")]
   public async Task<IActionResult> TakeSlot([FromBody] TakeSlotRequest req){
     if(string.IsNullOrWhiteSpace(req.team)){
-      return BadRequest("A equipe obrigatória.");
+      return BadRequest("A equipe é obrigatória");
     }
 
     var slot = await db.Slots
@@ -25,25 +24,25 @@ public class SlotController : ControllerBase {
       .FirstOrDefaultAsync(s => s.Id == req.slotId);
 
     if(slot == null){
-      return BadRequest("Slot não encontrado");
+      return BadRequest("Vaga não encontrado");
     }
 
-    if(slot.Routing!.Slots.Any(s => s.Team == req.team)){
-      return BadRequest("Essa equipe já está atribuida a uma vaga");
-    }
+    var oldSlot = slot.Routing!.Slots
+      .FirstOrDefault(s => s.Team == req.team && s.Id != req.slotId);
 
+    oldSlot?.Team = null;
     slot.Team = req.team;
     await db.SaveChangesAsync();
     return Ok();
   }
 
   [HttpPost("resign")]
-  public async Task<IActionResult> TakeSlot([FromBody] ResignSlotRequest req){
+  public async Task<IActionResult> ResignSlot([FromBody] ResignSlotRequest req){
     var slot = await db.Slots
       .FirstOrDefaultAsync(s => s.Id == req.slotId);
 
     if(slot == null){
-      return BadRequest("Slot não encontrado");
+      return BadRequest("Vaga não encontrado");
     }
 
     slot.Team = null;

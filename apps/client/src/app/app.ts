@@ -5,9 +5,13 @@ import { PanelModule } from 'primeng/panel';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { inject } from '@angular/core';
+import { CURRENT_USER } from '../token/current-user.token';
+import { FormsModule } from '@angular/forms';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @Component({
-  imports: [RouterModule, ButtonModule, PanelModule, ToolbarModule, ToastModule],
+  imports: [RouterModule, ButtonModule, PanelModule, ToolbarModule, ToastModule, FormsModule, RadioButtonModule],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -15,4 +19,5 @@ import { ToastModule } from 'primeng/toast';
 })
 export class App {
   protected title = 'client';
+  public currentUser = inject(CURRENT_USER);
 }
