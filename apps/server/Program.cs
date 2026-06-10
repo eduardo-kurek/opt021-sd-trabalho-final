@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Server.Controllers;
 using Server.Infra;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,14 +8,16 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
   options.UseNpgsql(connectionString));
 
+builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options => {
   options.AddPolicy("AllowAngular", policy => {
-    policy.AllowAnyOrigin()
+    policy.WithOrigins("http://localhost:4200")
       .AllowAnyHeader()
-      .AllowAnyMethod();
+      .AllowAnyMethod()
+      .AllowCredentials();
   });
 });
 
@@ -40,4 +43,5 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAngular");
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<RoutingHub>("/hub/routing");
 app.Run();

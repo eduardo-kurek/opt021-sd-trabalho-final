@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Server.Infra;
 
@@ -8,9 +9,11 @@ namespace Server.Controllers;
 [Route("api/[controller]")]
 public class SlotController : ControllerBase {
   private AppDbContext db;
+  private readonly IHubContext<RoutingHub> hubContext;
 
-  public SlotController(AppDbContext db){
+  public SlotController(AppDbContext db, IHubContext<RoutingHub> hubContext){
     this.db = db;
+    this.hubContext = hubContext;
   }
 
   [HttpPost("take")]
@@ -33,12 +36,14 @@ public class SlotController : ControllerBase {
     oldSlot?.Team = null;
     slot.Team = req.team;
     await db.SaveChangesAsync();
+    await NotifyGroup(slot.RoutingId);
     return Ok();
   }
 
   [HttpPost("resign")]
   public async Task<IActionResult> ResignSlot([FromBody] ResignSlotRequest req){
     var slot = await db.Slots
+      .Include(s => s.Routing)
       .FirstOrDefaultAsync(s => s.Id == req.slotId);
 
     if(slot == null){
@@ -47,13 +52,15 @@ public class SlotController : ControllerBase {
 
     slot.Team = null;
     await db.SaveChangesAsync();
+    await NotifyGroup(slot.RoutingId);
     return Ok();
   }
 
 
   [HttpPost("do-work")]
-  public async Task<IActionResult> TakeSlot([FromBody] DoWorkRequest req){
+  public async Task<IActionResult> DoWork([FromBody] DoWorkRequest req){
     var slot = await db.Slots
+      .Include(s => s.Routing)
       .FirstOrDefaultAsync(s => s.Id == req.slotId);
 
     if(slot == null){
@@ -65,7 +72,20 @@ public class SlotController : ControllerBase {
 
     slot.ServicesCompleted++;
     await db.SaveChangesAsync();
+    await NotifyGroup(slot.RoutingId);
     return Ok();
+  }
+
+  private async Task NotifyGroup(Guid routingId){
+    var routing = await db.Routings
+      .Include(r => r.Slots)
+      .FirstOrDefaultAsync(r => r.Id == routingId);
+
+    if (routing != null){
+      await hubContext.Clients
+        .Group(routingId.ToString())
+        .SendAsync("ReceiveRoutingUpdate", routing);
+    }
   }
 
 }

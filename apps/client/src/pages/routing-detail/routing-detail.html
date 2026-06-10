@@ -4,17 +4,29 @@
     @for (slot of routing()?.slots; track slot.id) {
         <p-card>
             <ng-template #header>
-                <div style="padding-left: 20px">
-                    <h1>
-                        Vaga {{ $index + 1 }}
-                        @if (slot.team) {
-                            <p-tag severity="success" [value]="slot.team" />
+                <div style="padding: 20px 20px 0px 20px; display: flex; gap: 5px; justify-content: space-between;;">
+                    <div style="display: flex; gap: 10px; align-items: center">
+                        <span style="font-weight: bold; font-size: 24px;">Vaga {{ $index + 1 }}</span>
+                        @if (slot.servicesCompleted == slot.servicesQt) {
+                            <p-tag severity="success" value="Finalizado" />
                         } @else {
-                            <p-tag severity="warn" value="Não atribuída" />
+                            <p-tag severity="info" value="Em andamento" />
                         }
-                    </h1>
+                    </div>
 
-                    Serviços realizados: {{ slot.servicesCompleted }} / {{ slot.servicesQt }}
+                    <span>
+                        Serviços realizados: {{ slot.servicesCompleted }} / {{ slot.servicesQt }}   
+                    </span>
+
+                    <div>
+                        @if (slot.team) {
+                            @if (onlineTeams().includes(slot.team)) {
+                                <span style="font-weight: bold; color: #10b981;">{{ slot.team }}</span>
+                            } @else {
+                                <span style="font-weight: bold; color: #6b7280;">{{ slot.team }}</span>
+                            }
+                        }
+                    </div>
                 </div>
             </ng-template>
                 
@@ -22,13 +34,14 @@
 
 
             <ng-template #footer >
-                
                 <div style="margin-top: 10px; display: flex; gap: 10px">
                     @if (slot.team && slot.team === currentUser()) {
                         <p-button label="Renunciar vaga" outlined="true" (onClick)="resignSlot(slot.id)" />
                         <p-button label="Realizar serviço" (onClick)="doWork(slot.id)" />
                     } @else if (!slot.team) {
-                        <p-button label="Assumir vaga" outlined="true" (onClick)="takeSlot(slot.id)" />
+                        @if (slot.servicesCompleted != slot.servicesQt) {
+                            <p-button label="Assumir vaga" outlined="true" (onClick)="takeSlot(slot.id)" />
+                        }
                     }
                 </div>
             </ng-template>

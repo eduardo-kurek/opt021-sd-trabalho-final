@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { HttpClient } from '@angular/common/http';
@@ -9,6 +9,7 @@ import { TagModule } from "primeng/tag";
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RoutingService } from '../../../services/RoutingService';
 import { SlotService } from '../../../services/SlotService';
+import { SignalService } from '../../../services/SignalService';
 import { MessageService } from 'primeng/api';
 import { CURRENT_USER } from '../../token/current-user.token';
 import { FormField } from "@angular/forms/signals";
@@ -19,23 +20,42 @@ import { FormField } from "@angular/forms/signals";
   templateUrl: './routing-detail.html',
   styleUrl: './routing-detail.css'
 })
-export class RoutingDetail implements OnInit {
+export class RoutingDetail implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
+  private routingId = '';
   public routing = signal<Routing | null>(null);
   private routingService = inject(RoutingService);
   private slotService = inject(SlotService);
   private messageService = inject(MessageService);
+  private signalService = inject(SignalService);
+  public onlineTeams = this.signalService.onlineTeams;
   currentUser = inject(CURRENT_USER);
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    console.log('Current User:', );
+  constructor() {
+    effect(() => {
+      const routingUpdated = this.signalService.routingUpdate();
+      if (routingUpdated) {
+        this.routing.set(routingUpdated);
+      }
+    });
+  }
 
-    if (id) {
-      this.routingService.getById(id).subscribe((data) => {
+  ngOnInit(): void {
+    this.routingId = this.route.snapshot.paramMap.get('id') ?? '';
+
+    if (this.routingId) {
+      this.routingService.getById(this.routingId).subscribe((data) => {
         this.routing.set(data);
       });
+
+      this.signalService.startConnection(this.routingId, this.currentUser());
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.routingId) {
+      this.signalService.closeConnection(this.routingId);
     }
   }
 
