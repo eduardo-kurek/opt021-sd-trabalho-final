@@ -11,6 +11,7 @@ export class SignalService {
   public routingUpdate = signal<Routing | null>(null);
   public onlineTeams = signal<string[]>([]);
 
+
   public startConnection(routingId: string, team: string): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl('http://localhost:5123/hub/routing')

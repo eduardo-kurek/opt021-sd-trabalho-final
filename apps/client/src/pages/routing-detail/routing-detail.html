@@ -1,6 +1,12 @@
-<h1 style="margin-left: 10px">Roteiro: {{ routing()?.name }}</h1>
+<div style="display: flex; align-items: center; justify-content: space-between;">
+    <h1 style="margin-left: 10px; display: inline;">Roteiro: {{ routing()?.name }}</h1>
+    <p-togglebutton onIcon="pi pi-circle-on" offIcon="pi pi-circle-off" 
+    [ngModel]="isOnline()" 
+    (ngModelChange)="isOnline.set($event)"
+     onLabel="Online" offLabel="Offline" class="w-24" />
+</div>
 
-<div class="container">
+<div class="container"> 
     @for (slot of routing()?.slots; track slot.id) {
         <p-card>
             <ng-template #header>

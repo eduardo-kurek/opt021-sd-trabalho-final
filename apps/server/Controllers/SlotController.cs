@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Server.Infra;
+using Server.Models;
 
 namespace Server.Controllers;
 
@@ -23,7 +24,7 @@ public class SlotController : ControllerBase {
     }
 
     var slot = await db.Slots
-      .Include(s => s.Routing).ThenInclude(routing => routing!.Slots)
+      .Include(s => s.Routing).ThenInclude(routing => routing!.Slots.OrderBy((s => s.Id)))
       .FirstOrDefaultAsync(s => s.Id == req.slotId);
 
     if(slot == null){
@@ -71,6 +72,10 @@ public class SlotController : ControllerBase {
       return BadRequest("Todos os trabalhos já foram realizados");
 
     slot.ServicesCompleted++;
+
+    if(slot.ServicesCompleted == slot.ServicesQt){
+      slot.Team = null;
+    }
     await db.SaveChangesAsync();
     await NotifyGroup(slot.RoutingId);
     return Ok();
@@ -79,6 +84,11 @@ public class SlotController : ControllerBase {
   private async Task NotifyGroup(Guid routingId){
     var routing = await db.Routings
       .Include(r => r.Slots)
+      .Select(r => new Routing {
+        Id = r.Id,
+        Name = r.Name,
+        Slots = r.Slots.OrderBy(s => s.Id).ToList()
+      })
       .FirstOrDefaultAsync(r => r.Id == routingId);
 
     if (routing != null){

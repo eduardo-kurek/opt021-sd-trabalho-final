@@ -12,10 +12,11 @@ import { SlotService } from '../../../services/SlotService';
 import { SignalService } from '../../../services/SignalService';
 import { MessageService } from 'primeng/api';
 import { CURRENT_USER } from '../../token/current-user.token';
-import { FormField } from "@angular/forms/signals";
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  imports: [RouterModule, ButtonModule, CardModule, TagModule, ProgressBarModule],
+  imports: [RouterModule, ButtonModule, CardModule, TagModule, ProgressBarModule, ToggleButtonModule, FormsModule],
   selector: 'app-routing-detail',
   templateUrl: './routing-detail.html',
   styleUrl: './routing-detail.css'
@@ -23,7 +24,7 @@ import { FormField } from "@angular/forms/signals";
 export class RoutingDetail implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
-  private routingId = '';
+  private routingId = signal<string | null>(null);
   public routing = signal<Routing | null>(null);
   private routingService = inject(RoutingService);
   private slotService = inject(SlotService);
@@ -32,7 +33,23 @@ export class RoutingDetail implements OnInit, OnDestroy {
   public onlineTeams = this.signalService.onlineTeams;
   currentUser = inject(CURRENT_USER);
 
+  public isOnline = signal<boolean>(true);
+
   constructor() {
+    effect(() => {
+      const online = this.isOnline();
+      const id = this.routingId();
+      const user = this.currentUser();
+      
+      if (online && id) {
+        this.signalService.startConnection(id, user);
+        this.slotService.processOfflineQueue();
+      } 
+      else if (!online && id) {
+        this.signalService.closeConnection(id);
+      }
+    });
+
     effect(() => {
       const routingUpdated = this.signalService.routingUpdate();
       if (routingUpdated) {
@@ -42,38 +59,51 @@ export class RoutingDetail implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.routingId = this.route.snapshot.paramMap.get('id') ?? '';
-
-    if (this.routingId) {
-      this.routingService.getById(this.routingId).subscribe((data) => {
-        this.routing.set(data);
+    this.routingId.set(this.route.snapshot.paramMap.get('id') ?? null);
+    if(this.routingId()) {
+      this.routingService.getById(this.routingId()!).subscribe(routing => {
+        this.routing.set(routing);
       });
-
-      this.signalService.startConnection(this.routingId, this.currentUser());
     }
   }
 
   ngOnDestroy(): void {
-    if (this.routingId) {
-      this.signalService.closeConnection(this.routingId);
+    if (this.routingId()) {
+      this.signalService.closeConnection(this.routingId()!);
     }
   }
 
   takeSlot(slotId: string) {
-    this.slotService.takeSlot(slotId, this.currentUser()).subscribe(() => {
+    this.slotService.takeSlot(slotId, this.currentUser(), this.isOnline()).subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Vaga assumida com sucesso' });
     });
   }
 
   resignSlot(slotId: string) {
-    this.slotService.resignSlot(slotId).subscribe(() => {
+    this.slotService.resignSlot(slotId, this.isOnline()).subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Vaga renunciada com sucesso' });
+      this.routing.update(r => {
+        if (!r) return r;
+        const slot = r.slots.find(s => s.id === slotId);
+        slot!.team = undefined;
+        return r;
+      });
     });
   }
 
   doWork(slotId: string) {
-    this.slotService.doWork(slotId).subscribe(() => {
+    this.slotService.doWork(slotId, this.isOnline()).subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Trabalho realizado com sucesso' });
+      this.routing.update(r => {
+        const slot = r!.slots.find(s => s.id === slotId)!;
+        if(slot.servicesCompleted < slot.servicesQt) {
+          slot.servicesCompleted++;
+          if(slot.servicesCompleted === slot.servicesQt) {
+            slot.team = undefined;
+          }
+        }
+        return r;
+      })
     });
   }
 
