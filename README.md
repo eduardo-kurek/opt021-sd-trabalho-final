@@ -13,109 +13,53 @@ Usuários no sistema podem executar as seguintes operações:
 - Assumir uma vaga de uma equipe e começar a realizar os atendimentos;
 - Entrar na roteirização como um observador;
 
+
+# Sobre
+
+O projeto consiste em um orquestrador de serviços que são realizados por equipes de uma empresa. Roteiros são criados, e equipes podem nas vagas dos roteiros para começar a realizar serviços. A ideia é que qualquer um que esteja observando um roteiro veja as atualizações em tempo real. Equipes podem acabar ficando sem internet no meio dos serviços, e portanto, devem continuar realizando serviços sem a interrupção dq rede; assim que a internet voltar, os serviços realizados são enviados ao servidor e o estado da roteirização é atualizado.
+
 ## Vagas
 
-Uma equipe pode assumir qualquer vaga que esteja vazia em uma roteirização. Ela começará a atender os serviços de onde parou. Uma vez com a vaga ocupada, outro usuário só pode assumir assim que a vaga ficar vazia. Um usuário só pode rescindir uma vaga por decisão própria, isso quer dizer que, mesmo que sua internet caia, ela não irá perder a vaga. Isso acontece para evitar que duas equipes atendam o mesmo lugar, pode ser que a equipe apenas ficou sem internet por 10 minutos, mas continuou atendendo aos serviços.
+Uma equipe pode assumir qualquer vaga que esteja vazia em uma roteirização. Ela começará a atender os serviços de onde parou. Uma vez com a vaga ocupada, outro usuário só pode toma-lá assim que a vaga ficar vazia. Um usuário só pode rescindir uma vaga por decisão própria, isso quer dizer que, mesmo que sua internet caia, ela não irá perder a vaga. Isso acontece para evitar que duas equipes atendam o mesmo lugar, pode ser que a equipe apenas ficou sem internet por 10 minutos, mas continuou atendendo aos serviços.
 
-Qualquer pessoa conectada ao roteiro poderá ver em tempo real as localizações de cada equipe, quais serviços já foram realizados, e se as equipes estão online ou offline no presente momento.
 
-## Resiliência 
+## Características
 
-Uma equipe realizando serviços, pode ficar sem internet no meio do caminho. Quando isso acontece, os seus serviços realizados são armazenados localmente. E assim que retorna, são enviados para o servidor. Porém, quando está sem internet, apenas enxerga o último estado da roteirização recebido do servidor.
+- **Resiliência:** Uma equipe realizando serviços, pode ficar sem internet no meio do caminho. Quando isso acontece, os seus serviços realizados são armazenados localmente. E assim que retorna, são enviados para o servidor. Porém, quando está sem internet, apenas enxerga o último estado da roteirização recebido do servidor.
 
-# Opt021SdTrabalhoFinal
+- **Comunicação em tempo real:** Qualquer pessoa conectada ao roteiro poderá ver em tempo real as localizações de cada equipe, quais serviços já foram realizados, e se as equipes estão online ou offline no presente momento.
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+## Tecnologias
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+- Para o frontend, utilizei `angular`;
+- Para o backend, utilizei uma api em `C#`;
+- Banco de dados relacional `postgresql`;
+- Docker para gerenciamento dos containers;
+- Para comunicação em grupos, utilizei a biblioteca `SignalR` da microsoft. Essa biblioteca possui uma implementação no angular e no C#, que utilizei para fazer a comunicação. Ela é implementada através de web sockets por baixo dos panos;
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Arquitetura
 
-## Run tasks
+![Arquitetura do sistema](arquitetura.png)
 
-To run tasks with Nx use:
+Os usuários se inscrevem no grupo da roteirização através da rota `/hub/routing` no backend. Esse hub, que é gerenciado pela biblioteca `SignalR`, guarda os usuários que estão no grupo, e também mantém uma conexão ping-pong para identificar quando algum usuário cair. Se algum usuário cair, todo o restante do grupo recebe essa notificação, atualizando no front-end a lista de usuários onlines.
 
-```sh
-npx nx <target> <project-name>
-```
+Quando um serviço é realizado, ou alguma ação acontece, essa ação é salva no banco, e então o `SignalR` notifica todas os usuário que estão no grupo sobre a atualização. O front-end recebe essa notificação e formata corretamente na tela.
 
-For example:
+Se alguma equipe ficar offline durante o processo, as outras equipes recebem a atualização na hora, e ainda mais, a equipe consegue continuar realizando serviços normalmente. Os serviços realizados ficam em uma fila, assim que a sua conexão retornar, os dados são enviados todos de uma vez para o servidor.
 
-```sh
-npx nx build myproject
-```
+Como uma equipe não consegue tomar lugar da outra, essa operação é segura, pois não há risco de conflito, onde uma equipe enviou um serviço que a outra ainda estava fazendo.
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Execução
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Para executar o projeto é necessário ter o dotnet sdk 8 instalado na máquina, node, e o docker para rodar o banco de dados.
 
-## Add new projects
+1. `npm install`: instala dependencias;
+1. `docker compose up -d`: inicia o banco de dados;
+2. `cd apps/server && dotnet run`: inicia o servidor;
+3. `npx nx serve client`: inicia o frontend na porta 4200;
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+## Autor
+Eduardo Kurek | UTFPR-CM | 06/2026 
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
-```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
-```
-
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
-```
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
