@@ -58,6 +58,10 @@ Para executar o projeto é necessário ter o dotnet sdk 8 instalado na máquina,
 2. `cd apps/server && dotnet run`: inicia o servidor;
 3. `npx nx serve client`: inicia o frontend na porta 4200;
 
+## Vídeo
+
+https://www.youtube.com/watch?v=h1HLXPA1CuE
+
 ## Autor
 Eduardo Kurek | UTFPR-CM | 06/2026 
 
