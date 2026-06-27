@@ -5,6 +5,9 @@ using Server.Models;
 
 namespace Server.Controllers;
 
+/**
+ * Controlador responsável pelas rotas do roteiro
+ */
 [ApiController]
 [Route("api/[controller]")]
 public class RoutingController : ControllerBase {
@@ -14,12 +17,18 @@ public class RoutingController : ControllerBase {
     this.db = db;
   }
 
+  /**
+  * Rota para listar todos os roteiros cadastrados
+  */
   [HttpGet]
   public async Task<IActionResult> GetAll(){
     var routings = await db.Routings.ToListAsync();
     return Ok(routings);
   }
 
+  /**
+  * Rota para listar um roteiro através do id
+  */
   [HttpGet("{id:guid}")]
   public async Task<IActionResult> GetById([FromRoute] Guid id){
     var routing = await db.Routings
@@ -30,6 +39,9 @@ public class RoutingController : ControllerBase {
     return Ok(routing);
   }
 
+  /**
+  * Rota para criar um roteiro através do nome e seus slots
+  */
   [HttpPost]
   public async Task<IActionResult> Create([FromBody] CreateRoutingRequest req){
     if(string.IsNullOrWhiteSpace(req.Name)){

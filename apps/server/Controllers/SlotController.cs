@@ -6,6 +6,9 @@ using Server.Models;
 
 namespace Server.Controllers;
 
+/**
+* Controlador responsável pelas rotas das vagas
+*/
 [ApiController]
 [Route("api/[controller]")]
 public class SlotController : ControllerBase {
@@ -17,6 +20,9 @@ public class SlotController : ControllerBase {
     this.hubContext = hubContext;
   }
 
+  /**
+  * Associa uma vaga para uma equipe
+  */
   [HttpPost("take")]
   public async Task<IActionResult> TakeSlot([FromBody] TakeSlotRequest req){
     if(string.IsNullOrWhiteSpace(req.team)){
@@ -41,6 +47,9 @@ public class SlotController : ControllerBase {
     return Ok();
   }
 
+  /**
+  * Remove uma equipe de uma vaga
+  */
   [HttpPost("resign")]
   public async Task<IActionResult> ResignSlot([FromBody] ResignSlotRequest req){
     var slot = await db.Slots
@@ -58,6 +67,9 @@ public class SlotController : ControllerBase {
   }
 
 
+  /**
+  * Realiza um serviço de uma vaga, incrementando a quantidade de serviços realizados
+  */
   [HttpPost("do-work")]
   public async Task<IActionResult> DoWork([FromBody] DoWorkRequest req){
     var slot = await db.Slots
@@ -81,6 +93,10 @@ public class SlotController : ControllerBase {
     return Ok();
   }
 
+  /**
+  * Notifica todos do grupo sobre uma atualização no roteiro,
+  * Usa o hubContext para notificar todos do grupo do roteiro
+  */
   private async Task NotifyGroup(Guid routingId){
     var routing = await db.Routings
       .Include(r => r.Slots)
