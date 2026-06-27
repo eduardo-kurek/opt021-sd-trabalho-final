@@ -1,21 +1,5 @@
 # Sobre
 
-O projeto consiste em um orquestrador de serviços realizados por uma empresa. Essa empresa, atende pontos de serviço (também chamado de ocorrencias) dispostos geografiamente em uma cidade, gerando uma rota para cada equipe e despachando para atender os serviços selecionados por um algoritmo heuristíco.
-
-# Arquitetura
-
-O servidor será o responsável por gerenciar os roteiros em andamento. Um roteiro contém a ordem de atendimento para cada equipe realizar. Por exemplo, um roteiro pode ter sido solicitado no servidor, e o resultado foi duas equipes (A e B) com 10 ocorrências cada uma. 
-
-Usuários no sistema podem executar as seguintes operações:
-
-- Solicitar a criação um novo roteiro no sistema, informando a quantidade de serviços e equipes. O roteiro poderia ser criado através de um algoritmo heuristico, mas para os fins de SDs, o solicitante informa exatamente quantos serviços em cada equipe;
-- Listar os roteiros em execução;
-- Assumir uma vaga de uma equipe e começar a realizar os atendimentos;
-- Entrar na roteirização como um observador;
-
-
-# Sobre
-
 O projeto consiste em um orquestrador de serviços que são realizados por equipes de uma empresa. Roteiros são criados, e equipes podem nas vagas dos roteiros para começar a realizar serviços. A ideia é que qualquer um que esteja observando um roteiro veja as atualizações em tempo real. Equipes podem acabar ficando sem internet no meio dos serviços, e portanto, devem continuar realizando serviços sem a interrupção dq rede; assim que a internet voltar, os serviços realizados são enviados ao servidor e o estado da roteirização é atualizado.
 
 ## Vagas
